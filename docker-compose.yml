@@ -1,0 +1,48 @@
+# inspired by https://github.com/BretFisher/node-docker-good-defaults
+
+version: '2.4'
+
+services:
+  baas:
+    build:
+      context: .
+      target: dev
+      args:
+        - PORT=3000
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+      - "9230:9230"
+    volumes:
+      - .:/opt/node_app/app:delegated
+      - ./package.json:/opt/node_app/package.json
+      - ./package-lock.json:/opt/node_app/package-lock.json
+      - notused:/opt/node_app/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DB_USERNAME=baas
+      - DB_PASSWORD=sigh
+      - DB_HOSTNAME=mongo
+      - DB_PORT=27017
+      - DB_DBNAME=baas
+      - API_KEY=anotherSuperSecretThing
+      - SESSION_SECRET=aSuperSecureString
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:12.2-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=baas
+      - POSTGRES_PASSWORD=aLongAndComplicatedSecret
+      - POSTGRES_DB=baas_admin
+
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+
+volumes:
+  notused:
+  db-data:
