@@ -1,4 +1,6 @@
-import Sequelize from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
+import userMaker from './User';
+import appMaker from './App';
 
 const sequelize = new Sequelize(
   process.env.DB_DBNAME,
@@ -8,5 +10,15 @@ const sequelize = new Sequelize(
     dialect: 'postgres',
   },
 );
+
+// Create models which will be saved under sequelize.models
+const User = userMaker(sequelize, DataTypes);
+const App = appMaker(sequelize, DataTypes);
+
+// Create associations
+App.belongsTo(User, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
+
+// Create tables if they don't exist
+sequelize.sync({ force: false });
 
 export { sequelize };

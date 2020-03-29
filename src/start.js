@@ -8,3 +8,5 @@ sequelize
   .catch((err) => {
     console.error('Uh oh', err);
   });
+
+console.log(sequelize.models);
