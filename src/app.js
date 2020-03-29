@@ -1,5 +1,6 @@
 import path from 'path';
 import express from 'express';
+import flash from 'connect-flash';
 
 const createExpressServer = () => {
   const server = express();
@@ -14,6 +15,9 @@ const createExpressServer = () => {
   // Parse request bodies
   server.use(express.json());
   server.use(express.urlencoded({ extended: true }));
+
+  // Add flash messages to requests
+  server.use(flash());
 
   server.get('/', (req, res) => {
     res.render('index', { title: 'index' });
