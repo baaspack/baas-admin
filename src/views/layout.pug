@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    link(rel='stylesheet', href='/dist/styles.css')
+    title= `${title} - Backpack`
+  body
+    block header
+      header
+        nav
+          ul
+            li
+              a(href="/") Home
+            if user
+              li
+                a(href="/logout") Log out
+            else
+              li
+                a(href="/login") Log In
+              li
+                a(href="/register") Register
+
+
+    .content
+      block content
