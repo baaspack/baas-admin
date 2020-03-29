@@ -19,14 +19,10 @@ services:
       - ./package-lock.json:/opt/node_app/package-lock.json
       - notused:/opt/node_app/app/node_modules
     environment:
-      - NODE_ENV=development
       - DB_USERNAME=baas
-      - DB_PASSWORD=sigh
-      - DB_HOSTNAME=mongo
-      - DB_PORT=27017
-      - DB_DBNAME=baas
-      - API_KEY=anotherSuperSecretThing
-      - SESSION_SECRET=aSuperSecureString
+      - DB_PASSWORD=aLongAndComplicatedSecret
+      - DB_HOSTNAME=postgres
+      - DB_DBNAME=baas_admin
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,9 +35,8 @@ services:
       - POSTGRES_USER=baas
       - POSTGRES_PASSWORD=aLongAndComplicatedSecret
       - POSTGRES_DB=baas_admin
-
     healthcheck:
-      test: pg_isready -U postgres -h 127.0.0.1
+      test: pg_isready -U baas -d baas_admin -h 127.0.0.1
 
 volumes:
   notused:
