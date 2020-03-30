@@ -5,6 +5,7 @@ import { Strategy as LocalStrategy } from 'passport-local';
 const initializePassport = (User) => {
   const authenticateUser = async (email, password, done) => {
     const user = await User.findOne({
+      attributes: ['id', 'password'],
       where: { email },
     });
 
