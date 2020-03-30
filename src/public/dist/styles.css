@@ -21,6 +21,17 @@ a:hover {
   color: red;
 }
 
+a.button {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  display: inline-block;
+  padding: .5rem 1.25rem;
+}
+
+a.button:hover {
+  background-color: lightsteelblue;
+}
+
 nav ul {
   display: flex;
   flex-flow: row wrap;
@@ -59,8 +70,21 @@ button:hover {
   background: lightskyblue;
 }
 
-.login-form-control {
+.vertical-form-control {
   display: flex;
   flex-flow: column nowrap;
   margin-top: 10px;
+}
+
+.table {
+  border-collapse: collapse;
+  margin-bottom: 5px;
+}
+
+.table tr {
+  border-bottom: 1px solid #ccc;
+}
+.table th, .table td {
+  text-align: left;
+  padding: 4px;
 }

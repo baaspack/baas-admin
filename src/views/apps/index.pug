@@ -1,0 +1,15 @@
+extends ../layout
+
+block content
+  table.table
+    thead
+      tr
+        th Name
+        th API Key
+    tbody
+      each app in apps
+        tr
+          td= app.name
+          td= app.api_key
+
+  a.button(href="/apps/add") Create

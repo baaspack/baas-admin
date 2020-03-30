@@ -1,0 +1,9 @@
+mixin appForm(app = {})
+  - const formType = app.id ? 'Update' : 'Add'
+  h1= formType
+  form.login-form(action=`/apps/${formType.toLowerCase()}` method="POST")
+    .vertical-form-control
+      label(for="name") App Name
+      input(type="text" name="name" id="name")
+    .vertical-form-control
+      button(type="submit")= formType

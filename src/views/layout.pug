@@ -12,6 +12,8 @@ html(lang="en")
             a(href="/") Home
           if user
             li
+              a(href="/apps") Apps
+            li
               form(action="/logout" method="post")
                 button(type="submit") Log out
           else
@@ -20,9 +22,9 @@ html(lang="en")
             li
               a(href="/register") Register
 
-    if locals.flashes
+    - const categories = Object.keys(locals.flashes)
+    if categories.length > 0
       .flash-messages
-        - const categories = Object.keys(locals.flashes)
         each category in categories
           each message in flashes[category]
             .flash(class=category)
