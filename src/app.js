@@ -3,9 +3,11 @@ import express from 'express';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import flash from 'connect-flash';
+import methodOverride from 'method-override';
 
 import helpers from './helpers';
 import { notFound, developmentErrors, productionErrors } from './handlers/errorHandlers';
+import lookForInputInBody from './handlers/methodOverrideHandler';
 
 const createExpressServer = (passport, redisClient, ...routes) => {
   const RedisStore = connectRedis(session);
@@ -21,6 +23,9 @@ const createExpressServer = (passport, redisClient, ...routes) => {
   // Parse request bodies
   server.use(express.json());
   server.use(express.urlencoded({ extended: true }));
+
+  // Enable method overriding
+  server.use(methodOverride(lookForInputInBody));
 
   // Configure sessions
   server.use(session({
