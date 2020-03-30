@@ -24,9 +24,9 @@ html(lang="en")
         - const categories = Object.keys(locals.flashes)
         each category in categories
           each message in flashes[category]
-            .flash(class=`flash--${category}`)
-              p.flash__text!= message
-              button.flash__remove(onClick="this.parentElement.remove()") &times;
+            .flash(class=category)
+              p.flash-text!= message
+              button.flash-remove(onClick="this.parentElement.remove()") &times;
 
     main
       block content
