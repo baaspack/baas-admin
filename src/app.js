@@ -3,6 +3,7 @@ import express from 'express';
 import session from 'express-session';
 import flash from 'connect-flash';
 import helpers from './helpers';
+import { notFound, developmentErrors, productionErrors } from './handlers/errorHandlers';
 
 const createExpressServer = (passport, ...routes) => {
   const server = express();
@@ -54,6 +55,18 @@ const createExpressServer = (passport, ...routes) => {
   server.get('/', (req, res) => {
     res.render('index', { title: 'index' });
   });
+
+  // If that above routes didnt work, we 404 them and forward to error handler
+  server.use(notFound);
+
+  // Otherwise this was a really bad error we didn't expect! Shoot eh
+  if (server.get('env') === 'development') {
+    /* Development Error Handler - Prints stack trace */
+    server.use(developmentErrors);
+  }
+
+  // production error handler
+  server.use(productionErrors);
 
   return server;
 };
