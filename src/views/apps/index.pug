@@ -6,10 +6,15 @@ block content
       tr
         th Name
         th API Key
+        th
     tbody
       each app in apps
         tr
           td= app.name
           td= app.api_key
+          td
+            form(action=`/apps/${app.id}` method="POST")
+              input(type="hidden" name="_method" value="DELETE")
+              button(type="submit") Delete
 
   a.button(href="/apps/add") Create

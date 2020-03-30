@@ -11,7 +11,7 @@ const createAppRoutes = (App) => {
   router.get('/apps/add', appController.addApp);
 
   router.post('/apps/add', catchErrors(appController.createApp));
-  // router.delete('/apps/:id', catchErrors(appController.remove));
+  router.delete('/apps/:id', catchErrors(appController.remove));
 
   return router;
 };
