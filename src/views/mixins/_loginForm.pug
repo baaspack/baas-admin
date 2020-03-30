@@ -2,11 +2,11 @@ mixin loginForm(newUser = true)
   - const formType = newUser ? 'Register' : 'Login'
   h1= formType
   form.login-form(action=`/${formType.toLowerCase()}` method="POST")
-    .login-form-control
+    .vertical-form-control
       label(for="email") Email Address
       input(type="email" name="email" id="email")
-    .login-form-control
+    .vertical-form-control
       label(for="password") Password
       input(type="password" name="password" id="password")
-    .login-form-control
+    .vertical-form-control
       button(type="submit")= formType
