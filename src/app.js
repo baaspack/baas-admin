@@ -2,7 +2,7 @@ import path from 'path';
 import express from 'express';
 import flash from 'connect-flash';
 
-const createExpressServer = () => {
+const createExpressServer = (passport, ...routes) => {
   const server = express();
 
   // Serve static files
@@ -16,8 +16,17 @@ const createExpressServer = () => {
   server.use(express.json());
   server.use(express.urlencoded({ extended: true }));
 
+  // Add Passport for auth
+  server.use(passport.initialize());
+  server.use(passport.session());
+
   // Add flash messages to requests
   server.use(flash());
+
+  // Add routes
+  routes.forEach((route) => {
+    server.use(route);
+  });
 
   server.get('/', (req, res) => {
     res.render('index', { title: 'index' });

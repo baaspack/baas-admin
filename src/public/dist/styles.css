@@ -31,3 +31,9 @@ nav ul {
 nav li {
   margin: 5px;
 }
+
+.login_form_control {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-top: 10px;
+}

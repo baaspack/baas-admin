@@ -1,5 +1,7 @@
 import { sequelize } from './models';
+import initializePassport from './controllers/passport-setup';
 import createExpressServer from './app';
+import createAuthRoutes from './routes/authRoutes';
 
 const startApp = async () => {
   try {
@@ -9,20 +11,16 @@ const startApp = async () => {
     return;
   }
 
-  const server = createExpressServer();
+  const { User } = sequelize.models;
+
+  const passport = initializePassport(User);
+  const authRoutes = createAuthRoutes(User, passport);
+
+  const server = createExpressServer(passport, authRoutes);
 
   server.listen(process.env.PORT, () => {
     console.log(`listening on port ${process.env.PORT}`);
   });
 };
-
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connected!!!');
-  })
-  .catch((err) => {
-    console.error('Uh oh', err);
-  });
 
 startApp();
