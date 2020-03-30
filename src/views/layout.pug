@@ -5,21 +5,28 @@ html(lang="en")
     link(rel='stylesheet', href='/dist/styles.css')
     title= `${title} - Backpack`
   body
-    block header
-      header
-        nav
-          ul
+    header
+      nav
+        ul
+          li
+            a(href="/") Home
+          if user
             li
-              a(href="/") Home
-            if user
-              li
-                a(href="/logout") Log out
-            else
-              li
-                a(href="/login") Log In
-              li
-                a(href="/register") Register
+              a(href="/logout") Log out
+          else
+            li
+              a(href="/login") Log In
+            li
+              a(href="/register") Register
 
+    if locals.flashes
+      .flash-messages
+        - const categories = Object.keys(locals.flashes)
+        each category in categories
+          each message in flashes[category]
+            .flash(class=`flash--${category}`)
+              p.flash__text!= message
+              button.flash__remove(onClick="this.parentElement.remove()") &times;
 
-    .content
+    main
       block content
