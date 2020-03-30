@@ -23,6 +23,7 @@ services:
       - DB_PASSWORD=aLongAndComplicatedSecret
       - DB_HOSTNAME=postgres
       - DB_DBNAME=baas_admin
+      - SESSION_SECRET=aSuperSecureString
     depends_on:
       postgres:
         condition: service_healthy
