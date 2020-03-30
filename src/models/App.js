@@ -17,8 +17,13 @@ const createAppModel = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      set() {
-        this.setDataValue('title', generateApiToken);
+    },
+  }, {
+    hooks: {
+      beforeValidate: async (app, _options) => {
+        if (app.isNewRecord) {
+          app.api_key = await generateApiToken();
+        }
       },
     },
   });

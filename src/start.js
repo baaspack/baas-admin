@@ -4,6 +4,7 @@ import { sequelize } from './models';
 import initializePassport from './controllers/passport-setup';
 import createExpressServer from './app';
 import createAuthRoutes from './routes/authRoutes';
+import createAppRoutes from './routes/appRoutes';
 
 const startApp = async () => {
   try {
@@ -19,12 +20,13 @@ const startApp = async () => {
 
   redisClient.on('connect', () => {
     console.log('Connected to Redis!');
-    const { user: User } = sequelize.models;
+    const { user: User, app: App } = sequelize.models;
 
     const passport = initializePassport(User);
     const authRoutes = createAuthRoutes(User, passport);
+    const appRoutes = createAppRoutes(App);
 
-    const server = createExpressServer(passport, redisClient, authRoutes);
+    const server = createExpressServer(passport, redisClient, authRoutes, appRoutes);
 
     server.listen(process.env.PORT, () => {
       console.log(`Listening on port ${process.env.PORT}`);
