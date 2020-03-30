@@ -12,7 +12,8 @@ html(lang="en")
             a(href="/") Home
           if user
             li
-              a(href="/logout") Log out
+              form(action="/logout" method="post")
+                button(type="submit") Log out
           else
             li
               a(href="/login") Log In
