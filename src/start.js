@@ -1,3 +1,5 @@
+import redis from 'redis';
+
 import { sequelize } from './models';
 import initializePassport from './controllers/passport-setup';
 import createExpressServer from './app';
@@ -11,15 +13,22 @@ const startApp = async () => {
     return;
   }
 
-  const { user: User } = sequelize.models;
+  const redisClient = redis.createClient({ host: process.env.REDIS_HOSTNAME });
 
-  const passport = initializePassport(User);
-  const authRoutes = createAuthRoutes(User, passport);
+  redisClient.on('error', (err) => { throw err; });
 
-  const server = createExpressServer(passport, authRoutes);
+  redisClient.on('connect', () => {
+    console.log('Connected to Redis!');
+    const { user: User } = sequelize.models;
 
-  server.listen(process.env.PORT, () => {
-    console.log(`listening on port ${process.env.PORT}`);
+    const passport = initializePassport(User);
+    const authRoutes = createAuthRoutes(User, passport);
+
+    const server = createExpressServer(passport, redisClient, authRoutes);
+
+    server.listen(process.env.PORT, () => {
+      console.log(`Listening on port ${process.env.PORT}`);
+    });
   });
 };
 

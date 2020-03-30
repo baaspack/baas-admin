@@ -1,11 +1,14 @@
 import path from 'path';
 import express from 'express';
 import session from 'express-session';
+import connectRedis from 'connect-redis';
 import flash from 'connect-flash';
+
 import helpers from './helpers';
 import { notFound, developmentErrors, productionErrors } from './handlers/errorHandlers';
 
-const createExpressServer = (passport, ...routes) => {
+const createExpressServer = (passport, redisClient, ...routes) => {
+  const RedisStore = connectRedis(session);
   const server = express();
 
   // Serve static files
@@ -21,8 +24,8 @@ const createExpressServer = (passport, ...routes) => {
 
   // Configure sessions
   server.use(session({
-    // store: new RedisStore({ client: redisClient }),
-    // name: '_redis',
+    store: new RedisStore({ client: redisClient }),
+    name: '_redis',
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
