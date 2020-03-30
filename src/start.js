@@ -11,7 +11,7 @@ const startApp = async () => {
     return;
   }
 
-  const { User } = sequelize.models;
+  const { user: User } = sequelize.models;
 
   const passport = initializePassport(User);
   const authRoutes = createAuthRoutes(User, passport);
