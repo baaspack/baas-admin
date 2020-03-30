@@ -19,7 +19,10 @@ const UserControllerMaker = (User) => {
     //  it's nice doing it here instead of the model
     //  since this is db agnostic. However, unique indexes
     //  can definitely take care of this.
-    const existingUser = await User.findOne.where({ email });
+    const existingUser = await User.findOne({
+      attributes: ['id'],
+      where: { email },
+    });
 
     // TODO: Research best practices for duplicate usernames / emails.
     //  It might be bad practice to tell a malicious actor that an
