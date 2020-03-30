@@ -8,7 +8,7 @@ const createAuthRoutes = (User, passport) => {
   const userController = userControllerMaker(User);
 
   router.get('/register', (req, res) => {
-    res.render('register', { title: 'Register' });
+    res.render('auth/register', { title: 'Register' });
   });
 
   router.post('/register',
@@ -17,7 +17,7 @@ const createAuthRoutes = (User, passport) => {
   );
 
   router.get('/login', (req, res) => {
-    res.render('login', { title: 'Login' });
+    res.render('auth/login', { title: 'Login' });
   });
 
   router.post('/login', authController.login);
