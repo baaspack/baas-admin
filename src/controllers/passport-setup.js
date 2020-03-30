@@ -32,7 +32,9 @@ const initializePassport = (User) => {
 
   passport.serializeUser((user, done) => (done(null, user.id)));
   passport.deserializeUser(async (userId, done) => {
-    const { id, email } = await User.findByPk(userId);
+    const { id, email } = await User.findByPk(userId, {
+      attributes: ['id', 'email'],
+    });
 
     return done(null, { id, email });
   });
