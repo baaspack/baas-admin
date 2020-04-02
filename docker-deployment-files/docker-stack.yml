@@ -36,8 +36,6 @@ services:
 
   mongo:
     image: bitnami/mongodb:4.2.5
-    ports:
-      - "27017:27017"
     environment:
       - MONGODB_ROOT_PASSWORD=aLongButNotRandomString
       - MONGODB_USERNAME=baas
