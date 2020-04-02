@@ -6,7 +6,7 @@ const appControllerMaker = (App) => {
   };
 
   const find = (req, res) => {
-
+    // TODO Implement
   };
 
   const addApp = (req, res) => {
