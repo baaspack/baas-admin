@@ -22,6 +22,8 @@ services:
       - DB_DBNAME=baas_admin
       - REDIS_HOSTNAME=redis
       - SESSION_SECRET=aSuperSecureString
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # needed for dockerode
     # depends_on:
     #   - postgres
     #   - redis
