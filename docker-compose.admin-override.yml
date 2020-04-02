@@ -1,0 +1,22 @@
+# inspired by https://github.com/BretFisher/node-docker-good-defaults
+
+version: '3.7'
+
+services:
+  baas:
+    image: baas_admin:dev
+    build:
+      context: .
+      target: dev
+      args:
+        - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/opt/node_app/app:delegated
+      - ./package.json:/opt/node_app/package.json
+      - ./package-lock.json:/opt/node_app/package-lock.json
+      - notused:/opt/node_app/app/node_modules
+
+volumes:
+  notused:

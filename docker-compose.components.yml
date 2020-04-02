@@ -1,0 +1,63 @@
+# inspired by https://github.com/BretFisher/node-docker-good-defaults
+
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:12.2-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - admin-backend
+    environment:
+      - POSTGRES_USER=baas
+      - POSTGRES_PASSWORD=aLongAndComplicatedSecret
+      - POSTGRES_DB=baas_admin
+    healthcheck:
+      test: pg_isready -U baas -d baas_admin -h 127.0.0.1
+
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: redis-cli ping
+    networks:
+      - admin-backend
+
+  reverse-proxy:
+    image: traefik:v2.2
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.reverse-proxy.rule=Host(`traefik.localhost`)
+        - traefik.http.services.reverse-proxy.loadbalancer.server.port=8080
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 8080
+        published: 8080
+        mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy
+
+volumes:
+  db-data:
+
+networks:
+  admin-backend:
+    name: admin-backend
+    attachable: true # ONLY NEED THIS FOR DEV
+  proxy:
+    name: proxy
+    attachable: true # ONLY NEED THIS FOR DEV
