@@ -28,6 +28,8 @@ services:
     depends_on:
       - mongo
       - redis
+    volumes:
+      - storage:/opt/node_app/public/uploads
     networks:
       - backpack
       - proxy
