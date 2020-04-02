@@ -1,3 +1,5 @@
+import { spinStackUp } from '../handlers/dockerHandler';
+
 const appControllerMaker = (App) => {
   const findAll = async (req, res) => {
     const apps = await App.findAll();
@@ -18,6 +20,8 @@ const appControllerMaker = (App) => {
     const userId = req.user.id;
 
     const app = await App.create({ name, userId });
+
+    spinStackUp(name);
 
     req.flash('success', `Created ${app.name}!`);
     res.redirect('/apps');
