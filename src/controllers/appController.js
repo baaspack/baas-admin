@@ -26,8 +26,7 @@ const appControllerMaker = (App) => {
     // TODO: Create a blacklist for invalid names,
     // strip out punctuation and other symbols
 
-    // TODO: admin users can only create their
-    // own apps. Add a prefix as a namespace
+    // TODO: Add a prefix as a namespace
     // to avoid name collisions.
     const app = await App.create({ name, userId });
 
