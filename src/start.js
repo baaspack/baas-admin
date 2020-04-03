@@ -2,7 +2,7 @@ import redis from 'redis';
 
 import { sequelize } from './models';
 import initializePassport from './controllers/passport-setup';
-import createExpressServer from './app';
+import { createExpressServer, createSessionParser, createWsServer } from './app';
 import createAuthRoutes from './routes/authRoutes';
 import createAppRoutes from './routes/appRoutes';
 
@@ -26,7 +26,10 @@ const startApp = async () => {
     const authRoutes = createAuthRoutes(User, passport);
     const appRoutes = createAppRoutes(App);
 
-    const server = createExpressServer(passport, redisClient, authRoutes, appRoutes);
+    const sessionParser = createSessionParser(redisClient);
+
+    const server = createExpressServer(passport, sessionParser, authRoutes, appRoutes);
+    const wss = createWsServer(server, sessionParser);
 
     server.listen(process.env.PORT, () => {
       console.log(`Listening on port ${process.env.PORT}`);
