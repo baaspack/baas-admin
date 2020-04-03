@@ -1,26 +1,28 @@
 import { Router } from 'express';
-import authControllerMaker from '../controllers/authController';
+import authControllerMaker, { isNotLoggedIn } from '../controllers/authController';
 import userControllerMaker from '../controllers/userController';
+
 
 const createAuthRoutes = (User, passport) => {
   const router = Router();
   const authController = authControllerMaker(passport);
   const userController = userControllerMaker(User);
 
-  router.get('/register', (req, res) => {
+  router.get('/register', isNotLoggedIn, (req, res) => {
     res.render('auth/register', { title: 'Register' });
   });
 
   router.post('/register',
+    isNotLoggedIn,
     userController.register,
     authController.login,
   );
 
-  router.get('/login', (req, res) => {
+  router.get('/login', isNotLoggedIn, (req, res) => {
     res.render('auth/login', { title: 'Login' });
   });
 
-  router.post('/login', authController.login);
+  router.post('/login', isNotLoggedIn, authController.login);
 
   router.post('/logout', authController.logout);
 
