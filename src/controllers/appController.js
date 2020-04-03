@@ -2,7 +2,11 @@ import { spinStackUp, tearDownStack } from '../handlers/dockerHandler';
 
 const appControllerMaker = (App) => {
   const findAll = async (req, res) => {
-    const apps = await App.findAll();
+    const userId = req.user.id;
+
+    const apps = await App.findAll({
+      where: { userId },
+    });
 
     res.render('apps/index', { title: 'Apps', apps });
   };
@@ -35,16 +39,18 @@ const appControllerMaker = (App) => {
 
   const remove = async (req, res) => {
     const { id } = req.params;
+    const userId = req.user.id;
 
-    const app = await App.findByPk(id);
-
-    tearDownStack(app.name);
-
-    const numOfAppsDeleted = await App.destroy({
-      where: { id },
+    const app = await App.findOne({
+      where: { id, userId },
     });
 
-    if (numOfAppsDeleted > 0) {
+    if (app) {
+      await App.destroy({
+        where: { id, userId },
+      });
+
+      tearDownStack(app.name);
       req.flash('success', 'Deleted!');
     } else {
       req.flash('error', 'No app found to delete');
