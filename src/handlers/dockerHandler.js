@@ -1,36 +1,48 @@
-import Docker from 'dockerode';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
+// import Docker from 'dockerode';
 
-const socketPath = process.env.DOCKER_SOCKET || '/var/run/docker.sock';
-const docker = new Docker({ socketPath });
+// const socketPath = process.env.DOCKER_SOCKET || '/var/run/docker.sock';
+// const docker = new Docker({ socketPath });
 
 export const spinStackUp = (stackName, apiKey) => {
   const stackFilePath = './docker-deployment-files/docker-stack.yml';
 
-  exec(
-    `BPNAME=${stackName} APIKEY=${apiKey} docker stack deploy -c ${stackFilePath} ${stackName}`,
-    (err, stdout, stderr) => {
-      console.log(stdout);
+  const dockerStackDeploy = spawn('docker',
+    [
+      'stack',
+      'deploy',
+      '-c',
+      stackFilePath,
+      stackName,
+    ], {
+      env: {
+        BPNAME: stackName,
+        APIKEY: apiKey,
+      },
+    });
 
-      console.error(stderr);
+  dockerStackDeploy.on('exit', (code) => {
+    console.log(`Child process exited with code ${code}`);
+  });
 
-      if (err) {
-        console.log(err);
-      }
-    },
-  );
+  dockerStackDeploy.on('error', (err) => {
+    console.error('uh oh', err);
+  });
+
+  dockerStackDeploy.stdout.pipe(process.stdout);
+  dockerStackDeploy.stderr.pipe(process.stderr);
 };
 
 export const tearDownStack = (stackName) => {
-  exec(`docker stack rm ${stackName}`, (err, stdout, stderr) => {
-    console.log(stdout);
+  const dockerStackRm = spawn('docker',
+    [
+      'stack',
+      'rm',
+      stackName,
+    ]);
 
-    console.error(stderr);
-
-    if (err) {
-      console.log(err);
-    }
-  });
+  dockerStackRm.stdout.pipe(process.stdout);
+  dockerStackRm.stderr.pipe(process.stderr);
 };
 
 export const lol = () => {};
