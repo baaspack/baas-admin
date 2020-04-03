@@ -23,7 +23,7 @@ services:
       - DB_DBNAME=baas
       - SEED_DB=false
       - REDIS_HOSTNAME=redis
-      - API_KEY=anotherSuperSecretThing
+      - API_KEY=${APIKEY}
       - SESSION_SECRET=aSuperSecureString
     depends_on:
       - mongo
@@ -43,6 +43,8 @@ services:
       - MONGODB_DATABASE=baas
     volumes:
       - mongo:/bitnami
+    networks:
+      - backpack
     # healthcheck:
     #   test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/baas --quiet` ] && echo 0 || echo 1"
     #   interval: 5s
@@ -59,6 +61,7 @@ services:
 
 volumes:
   mongo:
+  storage:
 
 networks:
   backpack:

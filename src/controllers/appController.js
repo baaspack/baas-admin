@@ -1,4 +1,4 @@
-import { spinStackUp } from '../handlers/dockerHandler';
+import { spinStackUp, tearDownStack } from '../handlers/dockerHandler';
 
 const appControllerMaker = (App) => {
   const findAll = async (req, res) => {
@@ -19,9 +19,15 @@ const appControllerMaker = (App) => {
     const { name } = req.body;
     const userId = req.user.id;
 
+    // TODO: Create a blacklist for invalid names,
+    // strip out punctuation and other symbols
+
+    // TODO: admin users can only create their
+    // own apps. Add a prefix as a namespace
+    // to avoid name collisions.
     const app = await App.create({ name, userId });
 
-    spinStackUp(name);
+    spinStackUp(app.name, app.api_key);
 
     req.flash('success', `Created ${app.name}!`);
     res.redirect('/apps');
@@ -29,6 +35,10 @@ const appControllerMaker = (App) => {
 
   const remove = async (req, res) => {
     const { id } = req.params;
+
+    const app = await App.findByPk(id);
+
+    tearDownStack(app.name);
 
     const numOfAppsDeleted = await App.destroy({
       where: { id },
