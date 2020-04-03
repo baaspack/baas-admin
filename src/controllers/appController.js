@@ -23,9 +23,6 @@ const appControllerMaker = (App) => {
     const { name } = req.body;
     const userId = req.user.id;
 
-    // TODO: Create a blacklist for invalid names,
-    // strip out punctuation and other symbols
-
     // TODO: Add a prefix as a namespace
     // to avoid name collisions.
     const app = await App.create({ name, userId });
