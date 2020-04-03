@@ -6,7 +6,7 @@ import flash from 'connect-flash';
 import methodOverride from 'method-override';
 
 import helpers from './helpers';
-import { notFound, developmentErrors, productionErrors } from './handlers/errorHandlers';
+import { validationErrors, notFound, developmentErrors, productionErrors } from './handlers/errorHandlers';
 import lookForInputInBody from './handlers/methodOverrideHandler';
 
 const createExpressServer = (passport, redisClient, ...routes) => {
@@ -63,6 +63,9 @@ const createExpressServer = (passport, redisClient, ...routes) => {
   server.get('/', (req, res) => {
     res.render('index', { title: 'index' });
   });
+
+  // Catch validation errors
+  server.use(validationErrors);
 
   // If that above routes didnt work, we 404 them and forward to error handler
   server.use(notFound);

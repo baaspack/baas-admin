@@ -12,6 +12,11 @@ const createAppModel = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      validate: {
+        isAlphanumeric: {
+          msg: 'Names can only include letters and numbers',
+        },
+      },
     },
     api_key: {
       type: DataTypes.STRING,

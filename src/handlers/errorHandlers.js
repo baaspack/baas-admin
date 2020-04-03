@@ -8,6 +8,18 @@ export const notFound = (req, res, next) => {
   next(err);
 };
 
+export const validationErrors = (err, req, res, next) => {
+  if (!err.errors) {
+    next(err);
+  }
+
+  err.errors.forEach((error) => {
+    req.flash('error', `${error.type}: ${error.message}`);
+  });
+
+  res.redirect('back');
+};
+
 export const developmentErrors = (err, req, res, _next) => {
   err.stack = err.stack || '';
 
