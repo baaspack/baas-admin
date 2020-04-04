@@ -5,16 +5,15 @@ import path from 'path';
 import connectRedis from 'connect-redis';
 import flash from 'connect-flash';
 import methodOverride from 'method-override';
-import WebSocket from 'ws';
 
-import helpers from './helpers';
+import helpers from '../helpers';
 import {
   validationErrors,
   notFound,
   developmentErrors,
   productionErrors,
-} from './handlers/errorHandlers';
-import lookForInputInBody from './handlers/methodOverrideHandler';
+} from '../handlers/errorHandlers';
+import lookForInputInBody from '../handlers/methodOverrideHandler';
 
 export const createSessionParser = (redisClient) => {
   const RedisStore = connectRedis(session);
@@ -31,37 +30,6 @@ export const createSessionParser = (redisClient) => {
   });
 
   return sessionParser;
-};
-
-export const createWsServer = (httpServer, sessionParser) => {
-  const wss = new WebSocket.Server({ clientTracking: false, noServer: true });
-
-  httpServer.on('upgrade', (req, socket, head) => {
-    console.log('Parsing session from request...');
-
-    sessionParser(req, {}, () => {
-      if (!req.session.passport || !req.session.passport.user) {
-        socket.destroy();
-        return;
-      }
-
-      console.log('Parsed the sesh!');
-
-      wss.handleUpgrade(req, socket, head, (ws) => {
-        ws.emit('connection', ws, req);
-      });
-    });
-  });
-
-  wss.on('connection', (ws, req) => {
-    const userId = req.session.user.id;
-
-    ws.on('message', (msg) => {
-      console.log(`Received msg ${msg} from ${userId}`);
-    });
-  });
-
-  return wss;
 };
 
 export const createExpressServer = (passport, sessionParser, router) => {
