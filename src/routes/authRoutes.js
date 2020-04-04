@@ -1,10 +1,7 @@
-import { Router } from 'express';
 import authControllerMaker, { isNotLoggedIn } from '../controllers/authController';
 import userControllerMaker from '../controllers/userController';
 
-
-const createAuthRoutes = (User, passport) => {
-  const router = Router();
+const createAuthRoutes = (router, User, passport) => {
   const authController = authControllerMaker(passport);
   const userController = userControllerMaker(User);
 
@@ -25,8 +22,6 @@ const createAuthRoutes = (User, passport) => {
   router.post('/login', isNotLoggedIn, authController.login);
 
   router.post('/logout', authController.logout);
-
-  return router;
 };
 
 export default createAuthRoutes;

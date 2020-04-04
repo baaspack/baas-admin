@@ -64,7 +64,7 @@ export const createWsServer = (httpServer, sessionParser) => {
   return wss;
 };
 
-export const createExpressServer = (passport, sessionParser, ...routes) => {
+export const createExpressServer = (passport, sessionParser, router) => {
   const app = express();
 
   // Serve static files
@@ -100,28 +100,20 @@ export const createExpressServer = (passport, sessionParser, ...routes) => {
     next();
   });
 
-  // Add routes
-  routes.forEach((route) => {
-    app.use(route);
-  });
+  app.use(router);
 
   app.get('/', (req, res) => {
     res.render('index', { title: 'index' });
   });
 
-  // Catch validation errors
   app.use(validationErrors);
 
-  // If that above routes didnt work, we 404 them and forward to error handler
   app.use(notFound);
 
-  // Otherwise this was a really bad error we didn't expect! Shoot eh
   if (app.get('env') === 'development') {
-    /* Development Error Handler - Prints stack trace */
     app.use(developmentErrors);
   }
 
-  // production error handler
   app.use(productionErrors);
 
   const httpServer = http.createServer(app);
