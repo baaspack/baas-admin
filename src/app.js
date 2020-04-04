@@ -14,7 +14,6 @@ import {
   developmentErrors,
   productionErrors,
 } from './handlers/errorHandlers';
-import { isLoggedIn } from './controllers/authController';
 import lookForInputInBody from './handlers/methodOverrideHandler';
 
 export const createSessionParser = (redisClient) => {
