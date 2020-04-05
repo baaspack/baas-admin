@@ -13,33 +13,18 @@ export const validationErrors = (err, req, res, next) => {
     next(err);
   }
 
-  err.errors.forEach((error) => {
-    req.flash('error', `${error.type}: ${error.message}`);
-  });
+  const messages = err.errors.map(({ type, message }) => `${type}: ${message}`);
 
-  res.redirect('back');
+  res.status(422).json({ message: messages.join(';') });
 };
 
 export const developmentErrors = (err, req, res, _next) => {
-  err.stack = err.stack || '';
+  const stack = err.stack || '';
+  const stackHighlighted = stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>');
 
-  const errorDetails = {
-    message: err.message,
-    status: err.status,
-    stackHighlighted: err.stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>'),
-  };
-
-  res.status(err.status || 500);
-  res.format({
-    'text/html': () => res.render('error', errorDetails),
-    'application/json': () => res.json(errorDetails),
-  });
+  return res.status(err.status || 500).json({ message: err.message, stack: stackHighlighted });
 };
 
 export const productionErrors = (err, req, res, _next) => {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {},
-  });
+  return res.status(err.status || 500).json({ message: err.message });
 };

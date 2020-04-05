@@ -10,7 +10,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=proxy
-        - traefik.http.routers.baas.rule=Host(`baas.localhost`)
+        - traefik.http.routers.baas.rule=Host(`admin.localhost`)
         - traefik.http.services.baas.loadbalancer.server.port=3000
       update_config:
         failure_action: rollback

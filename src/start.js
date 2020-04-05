@@ -7,7 +7,7 @@ import initializePassport from './controllers/passport-setup';
 import { createExpressServer, createSessionParser } from './servers/http';
 import { createWsServer } from './servers/ws';
 import createAuthRoutes from './routes/authRoutes';
-import createAppRoutes from './routes/appRoutes';
+import createBackpackRoutes from './routes/backpackRoutes';
 
 const startApp = async () => {
   try {
@@ -27,13 +27,14 @@ const startApp = async () => {
     const { user: User, app: App } = sequelize.models;
 
     const passport = initializePassport(User);
-    createAuthRoutes(router, User, passport);
 
     const sessionParser = createSessionParser(redisClient);
     const server = createExpressServer(passport, sessionParser, router);
 
-    const wss = createWsServer(server, sessionParser);
-    createAppRoutes(router, App, wss);
+    const sockets = createWsServer(server, sessionParser);
+
+    createAuthRoutes(router, User, passport);
+    createBackpackRoutes(router, App, sockets);
 
     server.listen(process.env.PORT, () => {
       console.log(`Listening on port ${process.env.PORT}`);

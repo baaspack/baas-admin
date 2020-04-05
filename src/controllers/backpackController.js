@@ -1,6 +1,6 @@
 import { spinStackUp, tearDownStack } from '../handlers/dockerHandler';
 
-const appControllerMaker = (App) => {
+const backpackControllerMaker = (App, sockets) => {
   const findAll = async (req, res) => {
     const userId = req.user.id;
 
@@ -8,29 +8,25 @@ const appControllerMaker = (App) => {
       where: { userId },
     });
 
-    res.render('apps/index', { title: 'Apps', apps });
+    return res.json({ message: 'Here are your backpacks', backpacks: apps });
   };
 
   const find = (req, res) => {
     // TODO Implement
   };
 
-  const addApp = (req, res) => {
-    res.render('apps/add', { title: 'Add a new app' });
-  };
-
-  const createApp = async (req, res) => {
+  const createBackpack = async (req, res) => {
     const { name } = req.body;
     const userId = req.user.id;
+    const userSocket = sockets.get(userId);
 
     // TODO: Add a prefix as a namespace
     // to avoid name collisions.
     const app = await App.create({ name, userId });
 
-    spinStackUp(app.name, app.api_key);
+    spinStackUp(app.name, app.api_key, userSocket);
 
-    req.flash('success', `Created ${app.name}!`);
-    res.redirect('/apps');
+    return res.json({ message: `Created ${app.name}`, backpack: app });
   };
 
   const remove = async (req, res) => {
@@ -46,22 +42,21 @@ const appControllerMaker = (App) => {
         where: { id, userId },
       });
 
-      tearDownStack(app.name);
-      req.flash('success', 'Deleted!');
-    } else {
-      req.flash('error', 'No app found to delete');
+      const userSocket = sockets.get(userId);
+
+      tearDownStack(app.name, userSocket);
+      return res.json({ message: 'Deleted!', id: app.id });
     }
 
-    res.redirect('/apps');
+    return res.status(404).json({ message: 'No app found to delete' });
   };
 
   return {
     findAll,
     find,
-    addApp,
-    createApp,
+    createBackpack,
     remove,
   };
 };
 
-export default appControllerMaker;
+export default backpackControllerMaker;

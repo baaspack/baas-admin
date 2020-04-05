@@ -10,13 +10,13 @@ const initializePassport = (User) => {
     });
 
     if (!user) {
-      return done(null, false);
+      return done(null, false, { message: 'User wrong' });
     }
 
     const validPass = await bcrypt.compare(password, user.password);
 
     if (!validPass) {
-      return done(null, false);
+      return done(null, false, { message: 'Password wrong' });
     }
 
     return done(null, user);

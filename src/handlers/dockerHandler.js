@@ -4,7 +4,29 @@ import { spawn } from 'child_process';
 // const socketPath = process.env.DOCKER_SOCKET || '/var/run/docker.sock';
 // const docker = new Docker({ socketPath });
 
-export const spinStackUp = (stackName, apiKey) => {
+const sendMessagesThroughWebsockets = (stack, command, socket, goodbyeMessage) => {
+  command.on('exit', (code) => {
+    const message = `Command exited with code ${code}\n`;
+    socket.send(JSON.stringify({ stack, message, type: 'exit' }));
+    if (goodbyeMessage) {
+      socket.send(JSON.stringify({ stack, message: `${goodbyeMessage}\n`, type: 'exit' }));
+    }
+  });
+
+  command.on('error', (buffer) => {
+    socket.send(JSON.stringify({ stack, message: buffer.toString(), type: 'err' }));
+  });
+
+  command.stdout.on('data', (buffer) => {
+    socket.send(JSON.stringify({ stack, message: buffer.toString(), type: 'msg' }));
+  });
+
+  command.stderr.on('data', (buffer) => {
+    socket.send(JSON.stringify({ stack, message: buffer.toString(), type: 'err' }));
+  });
+};
+
+export const spinStackUp = (stackName, apiKey, userSocket) => {
   const stackFilePath = './docker-deployment-files/docker-stack.yml';
 
   const dockerStackDeploy = spawn('docker',
@@ -21,19 +43,19 @@ export const spinStackUp = (stackName, apiKey) => {
       },
     });
 
-  dockerStackDeploy.on('exit', (code) => {
-    console.log(`Child process exited with code ${code}`);
-  });
+  if (userSocket) {
+    const goodbyeMessage = `see you at ${stackName}.localhost!\n`;
 
-  dockerStackDeploy.on('error', (err) => {
-    console.error('uh oh', err);
-  });
-
-  dockerStackDeploy.stdout.pipe(process.stdout);
-  dockerStackDeploy.stderr.pipe(process.stderr);
+    sendMessagesThroughWebsockets(
+      stackName,
+      dockerStackDeploy,
+      userSocket,
+      goodbyeMessage,
+    );
+  }
 };
 
-export const tearDownStack = (stackName) => {
+export const tearDownStack = (stackName, userSocket) => {
   const dockerStackRm = spawn('docker',
     [
       'stack',
@@ -41,8 +63,14 @@ export const tearDownStack = (stackName) => {
       stackName,
     ]);
 
-  dockerStackRm.stdout.pipe(process.stdout);
-  dockerStackRm.stderr.pipe(process.stderr);
-};
+  if (userSocket) {
+    const goodbyeMessage = `${stackName} has been removed!\n`;
 
-export const lol = () => {};
+    sendMessagesThroughWebsockets(
+      stackName,
+      dockerStackRm,
+      userSocket,
+      goodbyeMessage,
+    );
+  }
+};

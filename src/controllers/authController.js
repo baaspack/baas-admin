@@ -1,15 +1,24 @@
 const AuthControllerMaker = (passport) => {
-  const login = passport.authenticate('local', {
-    failureRedirect: '/login',
-    failureFlash: 'No go.',
-    successRedirect: '/',
-    successFlash: 'Logged in!',
-  });
+  const login = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if (err) { return next(err); }
+
+      if (!user) {
+        return res.status(401).json({ message: info.message });
+      }
+
+      req.logIn(user, (loginErr) => {
+        if (loginErr) { return next(loginErr); }
+
+        return res.json({ message: 'Signed in!' });
+      });
+    })(req, res, next);
+  };
 
   const logout = (req, res) => {
     req.logout();
-    req.flash('success', 'See ya!');
-    res.redirect('/');
+
+    return res.json({ message: 'See ya!' });
   };
 
   return {
@@ -18,13 +27,18 @@ const AuthControllerMaker = (passport) => {
   };
 };
 
+export const endpointForIsLoggedIn = (req, res) => {
+  const isLoggedIn = req.isAuthenticated();
+
+  return res.send({ isLoggedIn });
+};
+
 export const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
 
-  req.flash('error', 'Please sign in.');
-  return res.redirect('/login');
+  return res.status(401).json({ message: 'Unauthorized' });
 };
 
 export const isNotLoggedIn = (req, res, next) => {
@@ -32,8 +46,7 @@ export const isNotLoggedIn = (req, res, next) => {
     return next();
   }
 
-  req.flash('error', 'Already signed in.');
-  return res.redirect('/');
+  return res.status(403).json({ message: 'Sign out to see this' });
 };
 
 export default AuthControllerMaker;
