@@ -11,8 +11,20 @@ const backpackControllerMaker = (App, sockets) => {
     return res.json({ message: 'Here are your backpacks', backpacks: apps });
   };
 
-  const find = (req, res) => {
-    // TODO Implement
+  const find = async (req, res) => {
+    const { name } = req.params;
+    const userId = req.user.id;
+
+    const backpack = await App.findOne({
+      attributes: ['id', 'name'],
+      where: { name, userId },
+    });
+
+    if (backpack) {
+      return res.json({ message: 'Here is your backpack!', backpack });
+    }
+
+    return res.status(404).json({ message: 'No backpack found!' });
   };
 
   const createBackpack = async (req, res) => {
