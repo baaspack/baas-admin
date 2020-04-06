@@ -8,7 +8,7 @@ const sendMessagesThroughWebsockets = (stack, command, socket, goodbyeMessage) =
   command.on('exit', (code) => {
     const message = `Command exited with code ${code}\n`;
     socket.send(JSON.stringify({ stack, message, type: 'exit' }));
-    if (goodbyeMessage) {
+    if (code === 0 && goodbyeMessage) {
       socket.send(JSON.stringify({ stack, message: `${goodbyeMessage}\n`, type: 'exit' }));
     }
   });
