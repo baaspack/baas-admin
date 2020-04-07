@@ -4,25 +4,35 @@ import { spawn } from 'child_process';
 // const socketPath = process.env.DOCKER_SOCKET || '/var/run/docker.sock';
 // const docker = new Docker({ socketPath });
 
-const sendMessagesThroughWebsockets = (stack, command, socket, goodbyeMessage) => {
+const createAction = (backpackName, message) => (
+  JSON.stringify({
+    type: 'TERMINAL_MESSAGE_RECEIVE',
+    payload: {
+      backpackName,
+      message,
+    },
+  })
+);
+
+const sendMessagesThroughWebsockets = (backpackName, command, socket, goodbyeMessage) => {
   command.on('exit', (code) => {
-    const message = `Command exited with code ${code}\n`;
-    socket.send(JSON.stringify({ stack, message, type: 'exit' }));
+    socket.send(createAction(backpackName, `Command exited with code ${code}\n`));
+
     if (code === 0 && goodbyeMessage) {
-      socket.send(JSON.stringify({ stack, message: `${goodbyeMessage}\n`, type: 'exit' }));
+      socket.send(createAction(backpackName, `${goodbyeMessage}\n`));
     }
   });
 
   command.on('error', (buffer) => {
-    socket.send(JSON.stringify({ stack, message: buffer.toString(), type: 'err' }));
+    socket.send(createAction(backpackName, buffer.toString()));
   });
 
   command.stdout.on('data', (buffer) => {
-    socket.send(JSON.stringify({ stack, message: buffer.toString(), type: 'msg' }));
+    socket.send(createAction(backpackName, buffer.toString()));
   });
 
   command.stderr.on('data', (buffer) => {
-    socket.send(JSON.stringify({ stack, message: buffer.toString(), type: 'err' }));
+    socket.send(createAction(backpackName, buffer.toString()));
   });
 };
 

@@ -57,7 +57,7 @@ const backpackControllerMaker = (App, sockets) => {
       const userSocket = sockets.get(userId);
 
       tearDownStack(app.name, userSocket);
-      return res.json({ message: 'Deleted!', id: app.id });
+      return res.json({ message: 'Deleted!', id: app.id, name: app.name });
     }
 
     return res.status(404).json({ message: 'No app found to delete' });
