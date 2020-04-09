@@ -10,12 +10,11 @@ import createAuthRoutes from './routes/authRoutes';
 import createBackpackRoutes from './routes/backpackRoutes';
 
 const startApp = async () => {
-  try {
-    await sequelize.authenticate();
-  } catch (e) {
-    console.error('PSQL Connection Issue:', e);
-    return;
-  }
+  // try {
+  //   await sequelize.authenticate();
+  // } catch (e) {
+  //   console.error('PSQL Connection Issue:', e);
+  // }
 
   const redisClient = redis.createClient({ host: process.env.REDIS_HOSTNAME });
 

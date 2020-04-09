@@ -4,13 +4,13 @@ version: '3.7'
 
 services:
   backpack:
-    image: backpack:prod
+    image: baaspack\backpack
     deploy:
       replicas: 1
       labels:
         - traefik.enable=true
         - traefik.docker.network=proxy
-        - traefik.http.routers.${BPNAME}.rule=Host(`${BPNAME}.localhost`)
+        - traefik.http.routers.${BPNAME}.rule=Host(`${BPNAME}.imidom.com`)
         - traefik.http.services.${BPNAME}.loadbalancer.server.port=3000
       update_config:
         failure_action: rollback

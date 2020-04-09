@@ -1,0 +1,104 @@
+# inspired by https://github.com/BretFisher/node-docker-good-defaults
+
+version: '3.7'
+
+services:
+  admin-backend:
+    image: baaspack/backpack-admin-backend
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=proxy
+        - traefik.http.routers.admin-backend.rule=Host(`admin-be.imidom.com`)
+        - traefik.http.services.admin-backend.loadbalancer.server.port=3000
+      update_config:
+        failure_action: rollback
+        order: start-first
+    environment:
+      - DB_USERNAME=baas
+      - DB_PASSWORD=aLongAndComplicatedSecret
+      - DB_HOSTNAME=postgres
+      - DB_DBNAME=baas_admin
+      - REDIS_HOSTNAME=redis
+      - SESSION_SECRET=aSuperSecureString
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # needed for dockerode
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - admin-backend
+      - proxy
+
+  admin-frontend:
+    image: baaspack/backpack-admin-frontend
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=proxy
+        - traefik.http.routers.admin-frontend.rule=Host(`admin.imidom.com`)
+        - traefik.http.services.admin-frontend.loadbalancer.server.port=80
+      update_config:
+        failure_action: rollback
+        order: start-first
+    networks:
+      - proxy
+
+  postgres:
+    image: postgres:12.2-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - admin-backend
+    environment:
+      - POSTGRES_USER=baas
+      - POSTGRES_PASSWORD=aLongAndComplicatedSecret
+      - POSTGRES_DB=baas_admin
+    healthcheck:
+      test: pg_isready -U baas -d baas_admin -h 127.0.0.1
+
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: redis-cli ping
+    networks:
+      - admin-backend
+
+  reverse-proxy:
+    image: traefik:v2.2
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.reverse-proxy.rule=Host(`traefik.imidom.com`)
+        - traefik.http.services.reverse-proxy.loadbalancer.server.port=8080
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 8080
+        published: 8080
+        mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy
+
+volumes:
+  db-data:
+
+networks:
+  admin-backend:
+    name: admin-backend
+  proxy:
+    name: proxy
