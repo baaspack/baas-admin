@@ -6,12 +6,16 @@ services:
   admin-backend:
     image: baaspack/backpack-admin-backend
     deploy:
+      placement:
+        constraints:
+          - node.role == manager
       replicas: 1
       labels:
         - traefik.enable=true
         - traefik.docker.network=proxy
-        - traefik.http.routers.admin-backend.rule=Host(`admin-be.imidom.com`)
         - traefik.http.services.admin-backend.loadbalancer.server.port=3000
+        - traefik.http.routers.admin-backend.rule=Host(`admin-be.imidom.com`)
+        - traefik.http.routers.admin-backend.tls.certresolver=le
       update_config:
         failure_action: rollback
         order: start-first
@@ -23,7 +27,7 @@ services:
       - REDIS_HOSTNAME=redis
       - SESSION_SECRET=aSuperSecureString
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # needed for dockerode
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - postgres
       - redis
@@ -38,8 +42,9 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=proxy
-        - traefik.http.routers.admin-frontend.rule=Host(`admin.imidom.com`)
         - traefik.http.services.admin-frontend.loadbalancer.server.port=80
+        - traefik.http.routers.admin-frontend.rule=Host(`admin.imidom.com`)
+        - traefik.http.routers.admin-frontend.tls.certresolver=le
       update_config:
         failure_action: rollback
         order: start-first
@@ -72,28 +77,31 @@ services:
       placement:
         constraints:
           - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.reverse-proxy.rule=Host(`traefik.imidom.com`)
-        - traefik.http.services.reverse-proxy.loadbalancer.server.port=8080
     command:
-      - --api.insecure=true
-      - --providers.docker
       - --providers.docker.swarmMode=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls=true
+      - --certificatesresolvers.le.acme.tlsChallenge=true
+      - --certificatesresolvers.le.acme.storage=/etc/traefik/acme/acme.json
+      - --certificatesresolvers.le.acme.email=imidom@gmail.com
     ports:
       - target: 80
         published: 80
-      - target: 8080
-        published: 8080
+      - target: 443
+        published: 443
     volumes:
+      - acme:/etc/traefik/acme
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - proxy
 
 volumes:
   db-data:
+  acme:
 
 networks:
   admin-backend:

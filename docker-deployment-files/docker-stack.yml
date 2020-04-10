@@ -45,12 +45,6 @@ services:
       - mongo:/bitnami
     networks:
       - backpack
-    # healthcheck:
-    #   test: "[ `echo 'db.runCommand(\"ping\").ok' | mongo localhost/baas --quiet` ] && echo 0 || echo 1"
-    #   interval: 5s
-    #   start_period: 10s
-    #   timeout: 4s
-    #   retries: 3
 
   redis:
     image: redis:alpine
