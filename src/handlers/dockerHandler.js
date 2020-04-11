@@ -37,8 +37,9 @@ const sendMessagesThroughWebsockets = (backpackName, command, socket, goodbyeMes
 };
 
 export const spinStackUp = (stackName, apiKey, userSocket) => {
-  const stackFilePath = './docker-deployment-files/docker-backpack-stack.yml';
-  const { DOMAIN } = process.env;
+  const domain = process.env.DOMAIN || 'localhost';
+  const stackFileType = domain === 'localhost' ? 'local' : 'stack';
+  const stackFilePath = `./docker-deployment-files/docker-backpack-${stackFileType}.yml`;
 
   const dockerStackDeploy = spawn('docker',
     [
@@ -49,14 +50,14 @@ export const spinStackUp = (stackName, apiKey, userSocket) => {
       stackName,
     ], {
       env: {
-        DOMAIN,
+        DOMAIN: domain,
         BPNAME: stackName,
         APIKEY: apiKey,
       },
     });
 
   if (userSocket) {
-    const goodbyeMessage = `see you at ${stackName}-be.${DOMAIN}!\n`;
+    const goodbyeMessage = `see you at ${stackName}-be.${domain}!\n`;
 
     sendMessagesThroughWebsockets(
       stackName,

@@ -1,0 +1,62 @@
+version: '3.7'
+
+services:
+  backpack:
+    image: baaspack/backpack
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=proxy
+        - traefik.http.services.${BPNAME}.loadbalancer.server.port=3000
+        - traefik.http.routers.${BPNAME}.rule=Host(`${BPNAME}-be.${DOMAIN}`)
+        # - traefik.http.routers.${BPNAME}.tls.certresolver=le
+      update_config:
+        failure_action: rollback
+        order: start-first
+    environment:
+      - DB_USERNAME=baas
+      - DB_PASSWORD=sigh
+      - DB_HOSTNAME=mongo
+      - DB_PORT=27017
+      - DB_DBNAME=baas
+      - SEED_DB=false
+      - REDIS_HOSTNAME=redis
+      - API_KEY=${APIKEY}
+      - SESSION_SECRET=aSuperSecureString
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - storage:/opt/node_app/public/uploads
+    networks:
+      - backpack
+      - proxy
+
+  mongo:
+    image: bitnami/mongodb:4.2.5
+    environment:
+      - MONGODB_ROOT_PASSWORD=aLongButNotRandomString
+      - MONGODB_USERNAME=baas
+      - MONGODB_PASSWORD=sigh
+      - MONGODB_DATABASE=baas
+    volumes:
+      - mongo:/bitnami
+    networks:
+      - backpack
+
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: redis-cli ping
+    networks:
+      - backpack
+
+volumes:
+  mongo:
+  storage:
+
+networks:
+  backpack:
+  proxy:
+    external: true
