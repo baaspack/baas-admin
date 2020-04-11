@@ -58,7 +58,7 @@ services:
       - source: nginx-static
         target: /etc/nginx/nginx.conf
     deploy:
-      replicas: 1
+      replicas: 0
       labels:
         - traefik.enable=true
         - traefik.docker.network=proxy

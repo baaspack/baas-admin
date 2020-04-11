@@ -93,8 +93,10 @@ export const updateNginx = (stackName, userSocket) => {
     [
       'service',
       'update',
-      `${stackName}_nginx`,
       '--force',
+      '--replicas',
+      '1',
+      `${stackName}_nginx`,
     ]);
 
   dockerServiceUpdateCommand.on('exit', (code) => {

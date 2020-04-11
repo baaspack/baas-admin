@@ -12,11 +12,7 @@ import createuploadRoutes from './routes/uploadRoutes';
 
 
 const startApp = async () => {
-  // try {
-  //   await sequelize.authenticate();
-  // } catch (e) {
-  //   console.error('PSQL Connection Issue:', e);
-  // }
+  await sequelize.authenticate();
 
   const redisClient = redis.createClient({ host: process.env.REDIS_HOSTNAME });
 
