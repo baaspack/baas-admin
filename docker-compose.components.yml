@@ -23,7 +23,7 @@ services:
     networks:
       - admin-backend
 
-  reverse-proxy:
+  traefik:
     image: traefik:v2.2
     deploy:
       placement:
@@ -61,3 +61,8 @@ networks:
   proxy:
     name: proxy
     attachable: true # ONLY NEED THIS FOR DEV
+
+configs:
+  nginx-static:
+    file: ./nginx.conf
+    name: nginx-static

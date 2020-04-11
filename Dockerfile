@@ -30,7 +30,7 @@ ENV NODE_ENV=development
 
 RUN npm install --only=development
 
-CMD ["nodemon", "--exec", "babel-node", "./src/start"]
+CMD ["nodemon", "--ignore", "uploads/", "--exec", "babel-node", "./src/start"]
 
 # BUILD IMAGE
 FROM dev as builder

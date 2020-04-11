@@ -8,8 +8,8 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=proxy
-        - traefik.http.services.${BPNAME}.loadbalancer.server.port=3000
-        - traefik.http.routers.${BPNAME}.rule=Host(`${BPNAME}-be.${DOMAIN}`)
+        - traefik.http.services.${BPNAME}-be.loadbalancer.server.port=3000
+        - traefik.http.routers.${BPNAME}-be.rule=Host(`${BPNAME}-be.${DOMAIN}`)
         # - traefik.http.routers.${BPNAME}.tls.certresolver=le
       update_config:
         failure_action: rollback
@@ -52,11 +52,36 @@ services:
     networks:
       - backpack
 
+  nginx:
+    image: nginx:1.17.9-alpine
+    configs:
+      - source: nginx-static
+        target: /etc/nginx/nginx.conf
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=proxy
+        - traefik.http.services.${BPNAME}-fe.loadbalancer.server.port=80
+        - traefik.http.routers.${BPNAME}-fe.rule=Host(`${BPNAME}.${DOMAIN}`)
+        # - traefik.http.routers.${BPNAME}.tls.certresolver=le
+    volumes:
+      - frontends:/tmp:ro
+    networks:
+      - proxy
+    command: /bin/sh -c "cp -RT /tmp/${BPNAME} /usr/share/nginx/html && exec nginx -g 'daemon off;'"
+
 volumes:
   mongo:
   storage:
+  frontends:
+    external: true
 
 networks:
   backpack:
   proxy:
+    external: true
+
+configs:
+  nginx-static:
     external: true

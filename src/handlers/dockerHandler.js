@@ -87,3 +87,30 @@ export const tearDownStack = (stackName, userSocket) => {
     );
   }
 };
+
+export const updateNginx = (stackName, userSocket) => {
+  const dockerServiceUpdateCommand = spawn('docker',
+    [
+      'service',
+      'update',
+      `${stackName}_nginx`,
+      '--force',
+    ]);
+
+  dockerServiceUpdateCommand.on('exit', (code) => {
+  });
+
+  dockerServiceUpdateCommand.on('error', (buffer) => {
+    console.error(buffer.toString());
+  });
+
+  dockerServiceUpdateCommand.stdout.on('data', (buffer) => {
+    console.log(buffer.toString());
+  });
+
+  dockerServiceUpdateCommand.stderr.on('data', (buffer) => {
+    console.error(buffer.toString());
+  });
+
+  // Not sending any messages back at the moment
+};

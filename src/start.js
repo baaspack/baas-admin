@@ -8,6 +8,8 @@ import { createExpressServer, createSessionParser } from './servers/http';
 import { createWsServer } from './servers/ws';
 import createAuthRoutes from './routes/authRoutes';
 import createBackpackRoutes from './routes/backpackRoutes';
+import createuploadRoutes from './routes/uploadRoutes';
+
 
 const startApp = async () => {
   // try {
@@ -34,6 +36,7 @@ const startApp = async () => {
 
     createAuthRoutes(router, User, passport);
     createBackpackRoutes(router, App, sockets);
+    createuploadRoutes(router);
 
     server.listen(process.env.PORT, () => {
       console.log(`Listening on port ${process.env.PORT}`);
