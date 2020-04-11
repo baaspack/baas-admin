@@ -10,7 +10,7 @@ export const notFound = (req, res, next) => {
 
 export const validationErrors = (err, req, res, next) => {
   if (!err.errors) {
-    next(err);
+    return next(err);
   }
 
   const messages = err.errors.map(({ type, message }) => `${type}: ${message}`);
