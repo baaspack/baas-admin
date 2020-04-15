@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 const BCRYPT_SALT_ROUNDS = 10;
 
 const UserControllerMaker = (User) => {
-  const register = async (req, res) => {
+  const register = async (req, res, next) => {
     const { email, password } = req.body;
 
     // TODO: better way to handle password validation??
@@ -37,7 +37,11 @@ const UserControllerMaker = (User) => {
       password: passwordHash,
     });
 
-    return res.send({ id: user.id, message: 'Welcome, please sign in!' });
+    req.logIn(user, (loginErr) => {
+      if (loginErr) { return next(loginErr); }
+
+      return res.json({ id: user.id, message: 'Welcome, you have been signed in!' });
+    });
   };
 
   return {
