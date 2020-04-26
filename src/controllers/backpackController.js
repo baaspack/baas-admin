@@ -8,7 +8,7 @@ const backpackControllerMaker = (App, sockets) => {
       where: { userId },
     });
 
-    return res.json({ message: 'Here are your backpacks', backpacks: apps });
+    return res.json({ message: '', backpacks: apps });
   };
 
   const find = async (req, res) => {
@@ -21,7 +21,7 @@ const backpackControllerMaker = (App, sockets) => {
     });
 
     if (backpack) {
-      return res.json({ message: 'Here is your backpack!', backpack });
+      return res.json({ message: '', backpack });
     }
 
     return res.status(404).json({ message: 'No backpack found!' });
