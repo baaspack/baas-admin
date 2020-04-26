@@ -57,7 +57,7 @@ export const spinStackUp = (stackName, apiKey, userSocket) => {
     });
 
   if (userSocket) {
-    const goodbyeMessage = `see you at ${stackName}-be.${domain}!\n`;
+    const goodbyeMessage = `your backend URL is ${stackName}-be.${domain}!\n`;
 
     sendMessagesThroughWebsockets(
       stackName,
